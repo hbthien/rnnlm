@@ -116,17 +116,18 @@ print ("\ny:\n%s\n%s" % (" ".join([index_to_word[x] for x in y_example]), y_exam
 np.random.seed(10)
 model = RNNNumpy(vocabulary_size)
 out, s = model.forward_propagation(X_train[10])
-print( out.shape)
-print( out) #give the prob of the next words
+print("Size of forward_propagation is:")
+print(out.shape)
+print(out) #give the prob of the next words
 
 
-print("bbbbbbbbb")
+print("\n -------------aaaaaaaaaa")
 # gives the indices of the highest probability predictions for each word:
 predictions = model.predict(X_train[10])
 print (predictions.shape) 
 print (predictions)
 
-print("ccccccccc")
+print("\n -------------bbbbbbbbb")
 # Limit to 1000 examples to save time
 print ("Expected Loss for random predictions: %f" % np.log(vocabulary_size))
 print ("Actual loss: %f" % model.calculate_loss(X_train[:1000], y_train[:1000]))
@@ -138,12 +139,12 @@ modelcheck = RNNNumpy(grad_check_vocab_size, 10, bptt_truncate=1000)
 modelcheck.gradient_check([0,1,2,3], [1,2,3,4])
 
 
-print("aaaaaaaaaa")
+print("\n -------------ccccccccc")
 #  get a sense of how long it would take to train our network:
 np.random.seed(10)
 model = RNNNumpy(vocabulary_size)
 t1 = time.time()
-model.sgd_step(X_train[10], y_train[10], 0.005)
+model.sgd_step(X_train[10], y_train[10], 0.005) #do 1 step of SGD to test updating of para
 t2 = time.time()
 print ("SGD Step time with RNNNumpy: %f milliseconds" % ((t2 - t1) * 1000.))
 
@@ -168,7 +169,7 @@ if _MODEL_FILE != None:
 # train_with_sgd(model, X_train, y_train, nepoch=_NEPOCH, learning_rate=_LEARNING_RATE)
 
 
-# Use a pre-built a Theano model
+# Use a pre-built a RNN Theano model
 model = RNNTheano(vocabulary_size, hidden_dim=50)
 # losses = train_with_sgd(model, X_train, y_train, nepoch=50)
 # save_model_parameters_theano('./data/trained-model-theano.npz', model)
@@ -179,7 +180,6 @@ load_model_parameters_theano('./data/trained-model-theano.npz', model)
 def generate_sentence(model):
     # We start the sentence with the start token
     new_sentence = [word_to_index[sentence_start_token]]
-    print(new_sentence)
     # Repeat until we get an end token
     while not new_sentence[-1] == word_to_index[sentence_end_token]:
         next_word_probs = model.forward_propagation(new_sentence) #get proposed words
@@ -192,8 +192,8 @@ def generate_sentence(model):
     sentence_str = [index_to_word[x] for x in new_sentence[1:-1]]
     return sentence_str
  
-num_sentences = 10
-senten_min_length = 7
+num_sentences = 10 #nb of sentences to get
+senten_min_length = 7 #min len of each sentence
  
 for i in range(num_sentences):
     sent = []

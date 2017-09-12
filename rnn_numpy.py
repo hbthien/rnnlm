@@ -17,7 +17,9 @@ class RNNNumpy:
 
 
     def forward_propagation(self, x):
-        # The total number of time steps
+        #x: a sentence
+        
+        # The total number of time steps, i.e., #words in a sentence
         T = len(x)
         # During forward propagation we save all hidden states in s because need them later.
         # We add one additional element for the initial hidden, which we set to 0
@@ -27,7 +29,7 @@ class RNNNumpy:
         o = np.zeros((T, self.word_dim))
         # For each time step...
         for t in np.arange(T):
-            # Note that we are indxing U by x[t]. This is the same as multiplying U with a one-hot vector.
+            # Note that we are indexing U by x[t]. This is the same as multiplying U with a one-hot vector.
             s[t] = np.tanh(self.U[:,x[t]] + self.W.dot(s[t-1]))
             o[t] = softmax(self.V.dot(s[t]))
         return [o, s]
@@ -71,11 +73,11 @@ class RNNNumpy:
         for t in np.arange(T)[::-1]:
             dLdV += np.outer(delta_o[t], s[t].T)
             # Initial delta calculation
-            delta_t = self.V.T.dot(delta_o[t]) * (1 - (s[t] ** 2))
+            delta_t = self.V.T.dot(delta_o[t]) * (1 - (s[t] ** 2)) #self.V.T: lay transpose
             # Backpropagation through time (for at most self.bptt_truncate steps)
             for bptt_step in np.arange(max(0, t-self.bptt_truncate), t+1)[::-1]:
                 # print ("Backpropagation step t=%d bptt step=%d " % (t, bptt_step))
-                dLdW += np.outer(delta_t, s[bptt_step-1])              
+                dLdW += np.outer(delta_t, s[bptt_step-1])   #outer product of 2 vectors => matrix            
                 dLdU[:,x[bptt_step]] += delta_t
                 # Update delta for next step
                 delta_t = self.W.T.dot(delta_t) * (1 - s[bptt_step-1] ** 2)
@@ -113,7 +115,7 @@ class RNNNumpy:
                 relative_error = np.abs(backprop_gradient - estimated_gradient)/(np.abs(backprop_gradient) + np.abs(estimated_gradient))
                 # If the error is to large fail the gradient check
                 if relative_error > error_threshold:
-                    print ("Gradient Check ERROR: parameter=%s ix=%s" % (pname, ix)()
+                    print ("Gradient Check ERROR: parameter=%s ix=%s" % (pname, ix))
                     print ("+h Loss: %f" % gradplus)
                     print ("-h Loss: %f" % gradminus)
                     print ("Estimated_gradient: %f" % estimated_gradient)
@@ -121,14 +123,20 @@ class RNNNumpy:
                     print ("Relative Error: %f" % relative_error)
                     return
                 it.iternext()
-            print "Gradient check for parameter %s passed." % (pname)
+            print ("Gradient check for parameter %s passed." % (pname))
 
     
     # Performs one step of SGD.
     def sgd_step(self, x, y, learning_rate):
+        #x: a sentence
+        #y: set of labels
+        
         # Calculate the gradients
         dLdU, dLdV, dLdW = self.bptt(x, y)
         # Change parameters according to gradients and learning rate
         self.U -= learning_rate * dLdU
         self.V -= learning_rate * dLdV
         self.W -= learning_rate * dLdW
+        
+        
+        

@@ -69,6 +69,7 @@ class RNNTheano:
         return self.calculate_total_loss(X,Y)/float(num_words)   
 
 
+#this function does not belong in to class RNNTheano!!!!
 def gradient_check_theano(model, x, y, h=0.001, error_threshold=0.01):
     # Overwrite the bptt attribute. We need to backpropagate all the way to get the correct gradient
     model.bptt_truncate = 1000
